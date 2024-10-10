@@ -153,7 +153,7 @@ const poiLd = `{
   ]
 }`;
 async function main() {
-  const validatorAddressV3 = '0xB752Eec418f178ac8B48f15962B55c37F8D4748d';
+  const validatorAddressV3 = '0xd179f29d00Cd0E8978eb6eB847CaCF9E2A956336';
   const erc20verifierAddress = '0xfcc86A79fCb057A8e55C6B853dff9479C3cf607c';
   const excludedCountryCodes = Object.values(KYC_EXCLUDED_COUNTRIES).sort((a, b) => a - b);
 
