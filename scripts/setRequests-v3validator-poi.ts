@@ -153,8 +153,8 @@ const poiLd = `{
   ]
 }`;
 async function main() {
-  const validatorAddressV3 = '0xd179f29d00Cd0E8978eb6eB847CaCF9E2A956336';
-  const erc20verifierAddress = '0xfcc86A79fCb057A8e55C6B853dff9479C3cf607c';
+  const validatorAddressV3 = '0x48a16180b004726cc12bF55C61A2167Da16CA0f3';
+  const erc20verifierAddress = '0xB752Eec418f178ac8B48f15962B55c37F8D4748d';
   const excludedCountryCodes = Object.values(KYC_EXCLUDED_COUNTRIES).sort((a, b) => a - b);
 
   const UniversalVerifierFactory = await ethers.getContractFactory('UniversalVerifier');
