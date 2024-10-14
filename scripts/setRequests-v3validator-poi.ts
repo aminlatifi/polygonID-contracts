@@ -171,7 +171,7 @@ async function main() {
     method: DidMethod.Iden3
   });
 
-  const requestId = 11;
+  const requestId = 12;
   const countryNIN = {
     requestId,
     schema: schema,
@@ -218,7 +218,7 @@ async function main() {
         contract_address: await universalVerifier.getAddress(),
         method_id: 'b68967e2',
         chain_id: 1101,
-        network: 'zkevm_cardona'
+        network: 'zkevm'
       },
       scope: [
         {
