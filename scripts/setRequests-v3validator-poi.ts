@@ -2,8 +2,6 @@ import { ethers } from 'hardhat';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 import { Blockchain, DID, DidMethod, NetworkId } from '@iden3/js-iden3-core';
 import { buildVerifierId, calculateQueryHashV3, coreSchemaFromStr } from '../test/utils/utils';
-import { Merklizer, Path } from '@iden3/js-jsonld-merklization';
-import { byteEncoder, calculateCoreSchemaHash } from '@0xpolygonid/js-sdk';
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
   EQ: 1, // equal
@@ -34,6 +32,49 @@ export const QueryOperators = {
   $exists: Operators.EXISTS,
   $lte: Operators.LTE,
   $gte: Operators.GTE
+};
+
+const KYC_EXCLUDED_COUNTRIES = {
+  Afghanistan: 4,
+  'American Samoa': 16,
+  Anguilla: 660,
+  'Antigua and Barbuda': 28,
+  Belarus: 112,
+  'Bosnia and Herzegovina': 70,
+  'Central African Republic': 140,
+  Cuba: 192,
+  'DR Congo': 180,
+  Ethiopia: 231,
+  Fiji: 242,
+  Guam: 316,
+  'Hong Kong': 344,
+  Iran: 364,
+  Iraq: 368,
+  Kosovo: 999,
+  Lebanon: 422,
+  Libya: 434,
+  Mali: 466,
+  Montenegro: 499,
+  Myanmar: 104,
+  Nicaragua: 558,
+  'North Korea': 408,
+  'North Macedonia': 807,
+  Palau: 585,
+  Panama: 591,
+  Russia: 643,
+  Samoa: 882,
+  Serbia: 688,
+  Somalia: 706,
+  'South Sudan': 728,
+  Sudan: 729,
+  'Syrian Arab Republic': 760,
+  Ukraine: 804,
+  'US Virgin Islands': 850,
+  Vanuatu: 548,
+  Venezuela: 862,
+  'Yemen, Rep': 887,
+  'United Kingdom': 826,
+  'United States': 840
 };
 
 const poiLd = `{
@@ -110,8 +151,9 @@ const poiLd = `{
   ]
 }`;
 async function main() {
-  const validatorAddressV3 = '0xB752Eec418f178ac8B48f15962B55c37F8D4748d';
-  const erc20verifierAddress = '0xdE9eBC446d69EF9a876a377e3E3cEe91d08fE2A0';
+  const validatorAddressV3 = '0xd179f29d00Cd0E8978eb6eB847CaCF9E2A956336';
+  const erc20verifierAddress = '0xfcc86A79fCb057A8e55C6B853dff9479C3cf607c';
+  const excludedCountryCodes = Object.values(KYC_EXCLUDED_COUNTRIES).sort((a, b) => a - b);
 
   const UniversalVerifierFactory = await ethers.getContractFactory('UniversalVerifier');
   const universalVerifier = await UniversalVerifierFactory.attach(erc20verifierAddress); // current mtp validator address on mumbai
@@ -127,18 +169,22 @@ async function main() {
     method: DidMethod.Iden3
   });
 
-  const requestId = 21;
+  const requestId = 11;
   const countryNIN = {
     requestId,
     schema: schema,
     claimPathKey: schemaClaimPathKeyCountry,
     operator: Operators.NIN,
-    value: [840],
+    value: excludedCountryCodes,
     slotIndex: 0,
     queryHash: '',
     circuitIds: ['credentialAtomicQueryV3OnChain-beta.1'],
-    allowedIssuers: //['did:iden3:privado:main:2SdUfDwHK3koyaH5WzhvPhpcjFfdem2xD625aymTNc'],
-     ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
+    // allowedIssuers: ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
+    // allowedIssuers: ['did:iden3:privado:main:2SdUfDwHK3koyaH5WzhvPhpcjFfdem2xD625aymTNc'],
+    //// Production
+    // allowedIssuers: ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
+    //// Testing
+    allowedIssuers: ['did:iden3:privado:main:2SfreFymXBFkp8GqF8DXegUHVrEYNdsqgmkZ9YjbKs'],
     skipClaimRevocationCheck: false,
     verifierID: verifierId.bigInt(),
     nullifierSessionID: requestId,
@@ -172,8 +218,8 @@ async function main() {
       transaction_data: {
         contract_address: await universalVerifier.getAddress(),
         method_id: 'b68967e2',
-        chain_id: 2442,
-        network: 'zkevm_cardona'
+        chain_id: 137,
+        network: 'polygon'
       },
       scope: [
         {
@@ -185,7 +231,7 @@ async function main() {
               'https://raw.githubusercontent.com/anima-protocol/claims-polygonid/main/schemas/json-ld/poi-v2.json-ld',
             credentialSubject: {
               document_country_code: {
-                $nin: [840]
+                $nin: excludedCountryCodes
               }
             },
             type: 'AnimaProofOfIdentity'
@@ -195,12 +241,13 @@ async function main() {
     }
   };
 
-  await universalVerifier.setZKPRequest(requestId, {
+  const response = await universalVerifier.setZKPRequest(requestId, {
     metadata: JSON.stringify(invokeRequestMetadataEmailSd),
     validator: validatorAddressV3,
     data: dataV3EmailSD
   });
 
+  console.log(`Response: ${JSON.stringify(response)}`);
   console.log(JSON.stringify(invokeRequestMetadataEmailSd, null, '\t'));
   console.log(`Request ID: ${requestId} is set`);
 }
