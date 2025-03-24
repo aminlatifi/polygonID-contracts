@@ -2,8 +2,6 @@ import { ethers } from 'hardhat';
 import { packV3ValidatorParams } from '../test/utils/pack-utils';
 import { Blockchain, DID, DidMethod, NetworkId } from '@iden3/js-iden3-core';
 import { buildVerifierId, calculateQueryHashV3, coreSchemaFromStr } from '../test/utils/utils';
-import { Merklizer, Path } from '@iden3/js-jsonld-merklization';
-import { byteEncoder, calculateCoreSchemaHash } from '@0xpolygonid/js-sdk';
 const Operators = {
   NOOP: 0, // No operation, skip query verification in circuit
   EQ: 1, // equal
@@ -171,7 +169,7 @@ async function main() {
     method: DidMethod.Iden3
   });
 
-  const requestId = 12;
+  const requestId = 11;
   const countryNIN = {
     requestId,
     schema: schema,
@@ -183,7 +181,10 @@ async function main() {
     circuitIds: ['credentialAtomicQueryV3OnChain-beta.1'],
     // allowedIssuers: ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
     // allowedIssuers: ['did:iden3:privado:main:2SdUfDwHK3koyaH5WzhvPhpcjFfdem2xD625aymTNc'],
-    allowedIssuers: ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
+    //// Production
+    // allowedIssuers: ['did:iden3:privado:main:2ScrbEuw9jLXMapW3DELXBbDco5EURzJZRN1tYj7L7'],
+    //// Testing
+    allowedIssuers: ['did:iden3:privado:main:2SfreFymXBFkp8GqF8DXegUHVrEYNdsqgmkZ9YjbKs'],
     skipClaimRevocationCheck: false,
     verifierID: verifierId.bigInt(),
     nullifierSessionID: requestId,
@@ -217,8 +218,8 @@ async function main() {
       transaction_data: {
         contract_address: await universalVerifier.getAddress(),
         method_id: 'b68967e2',
-        chain_id: 1101,
-        network: 'zkevm'
+        chain_id: 137,
+        network: 'polygon'
       },
       scope: [
         {
@@ -240,12 +241,13 @@ async function main() {
     }
   };
 
-  await universalVerifier.setZKPRequest(requestId, {
+  const response = await universalVerifier.setZKPRequest(requestId, {
     metadata: JSON.stringify(invokeRequestMetadataEmailSd),
     validator: validatorAddressV3,
     data: dataV3EmailSD
   });
 
+  console.log(`Response: ${JSON.stringify(response)}`);
   console.log(JSON.stringify(invokeRequestMetadataEmailSd, null, '\t'));
   console.log(`Request ID: ${requestId} is set`);
 }

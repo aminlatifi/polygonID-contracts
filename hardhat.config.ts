@@ -60,6 +60,13 @@ const config: HardhatUserConfig = {
       accounts: [`0x${process.env.ZK_EVM_PRIVATE_KEY}`],
       gasPrice: 1000000000
     },
+    polygon: {
+      chainId: 137,
+      url: `${process.env.POLYGON_RPC_URL}`,
+      accounts: [`0x${process.env.POLYGON_PRIVATE_KEY}`],
+      // 100 gwei
+      gasPrice: 100000000000
+    },
     // 'linea-sepolia': {
     //   chainId: 59141,
     //   url: `${process.env.LINEA_SEPOLIA_RPC_URL}`,
@@ -86,7 +93,8 @@ const config: HardhatUserConfig = {
       'linea-sepolia': process.env.LINEA_API_KEY,
       amoy: process.env.AMOY_API_KEY,
       polygonZkEVM: process.env.ZK_EVM_API_KEY,
-      polygonZkEVMTestnet: process.env.ZK_EVM_API_KEY
+      polygonZkEVMTestnet: process.env.ZK_EVM_API_KEY,
+      polygon: process.env.POLYGON_API_KEY
     },
     customChains: [
       {
