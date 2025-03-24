@@ -67,6 +67,11 @@ const config: HardhatUserConfig = {
       // 100 gwei
       gasPrice: 100000000000
     },
+    polygon_amoy: {
+      chainId: 80002,
+      url: `${process.env.AMOY_RPC_URL}`,
+      accounts: [`0x${process.env.AMOY_PRIVATE_KEY}`]
+    },
     // 'linea-sepolia': {
     //   chainId: 59141,
     //   url: `${process.env.LINEA_SEPOLIA_RPC_URL}`,
